@@ -17,5 +17,10 @@ public class MappingProfile : Profile
         CreateMap<Match, MatchDetailDto>()
             .ForMember(dto => dto.TotalBets,
                 options => options.MapFrom(match => match.Bets.Count));
+
+        // Module 6: write DTOs
+        CreateMap<Team, TeamDto>();
+        CreateMap<TeamFormDto, Team>().ReverseMap();
+        CreateMap<MatchFormDto, Match>().ReverseMap();
     }
 }

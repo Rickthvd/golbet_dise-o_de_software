@@ -1,12 +1,21 @@
-﻿// GolBet.Web/Helpers/DateTimeExtensions.cs
-namespace GolBet.Web.Helpers;
+﻿using System;
 
-public static class DateTimeExtensions
+namespace GolBet.Web.Helpers
 {
-    private static readonly TimeZoneInfo ColombiaZone =
-        TimeZoneInfo.FindSystemTimeZoneById("America/Bogota");
+    public static class DateTimeExtensions
+    {
+        private static readonly TimeZoneInfo ColombiaTimeZone =
+            TimeZoneInfo.FindSystemTimeZoneById(
+                OperatingSystem.IsWindows() ? "SA Pacific Standard Time" : "America/Bogota");
 
-    /// <summary>Converts a UTC DateTime to Colombia local time (UTC-5, no DST).</summary>
-    public static DateTime ToColombiaTime(this DateTime utcDate)
-        => TimeZoneInfo.ConvertTimeFromUtc(utcDate, ColombiaZone);
+        public static DateTime ToColombiaTime(this DateTime utcDateTime)
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, ColombiaTimeZone);
+        }
+
+        public static DateTime ToUtcFromColombia(this DateTime colombiaDateTime)
+        {
+            return TimeZoneInfo.ConvertTimeToUtc(colombiaDateTime, ColombiaTimeZone);
+        }
+    }
 }

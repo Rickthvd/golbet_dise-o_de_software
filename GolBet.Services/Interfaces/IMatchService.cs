@@ -11,4 +11,10 @@ public interface IMatchService
 
     /// <summary>Full detail for a single match, or null if it doesn't exist.</summary>
     Task<MatchDetailDto?> GetDetailAsync(int id);
+
+    // Module 6: writes
+    Task<MatchFormDto?> GetForEditAsync(int id);
+    Task CreateAsync(MatchFormDto dto);
+    Task UpdateAsync(MatchFormDto dto);
+    Task DeactivateAsync(int id);
 }
