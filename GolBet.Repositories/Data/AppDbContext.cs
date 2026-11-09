@@ -1,10 +1,12 @@
-﻿using GolBet.Entities;
+﻿// GolBet.Repositories/Data/AppDbContext.cs
+using GolBet.Entities;
 using GolBet.Entities.Common;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace GolBet.Repositories.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<AppUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -14,7 +16,7 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(modelBuilder);   // PRIMERO: Identity mapea sus 6 tablas aquí
 
         // Nombres de equipos únicos (sin distinción de mayúsculas/minúsculas ni tildes)
         modelBuilder.Entity<Team>()
@@ -43,6 +45,25 @@ public class AppDbContext : DbContext
             .HasOne(b => b.Match)
             .WithMany(m => m.Bets)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // ---- Agregado en el Módulo 7: Identity ----
+
+        // Bet -> User: las apuestas de un usuario no se destruyen si se borra el usuario
+        modelBuilder.Entity<Bet>()
+            .HasOne(b => b.User)
+            .WithMany(u => u.Bets)
+            .HasForeignKey(b => b.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Regla de negocio #3: un mismo usuario no puede repetir la misma selección en un partido
+        modelBuilder.Entity<Bet>()
+            .HasIndex(b => new { b.MatchId, b.UserId, b.Pick })
+            .IsUnique();
+
+        // Precisión del saldo en FutCoins (hasta 9,999,999,999.99)
+        modelBuilder.Entity<AppUser>()
+            .Property(u => u.Balance)
+            .HasPrecision(12, 2);
     }
 
     // Auditoría automática de fechas de creación y modificación
